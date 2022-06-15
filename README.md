@@ -54,7 +54,7 @@ There are three parts to the autotiling function:
 
 *If you are applying this technique along with the examples provided below, you'll need to use the pattern below for applying bitmap values. You'll notice it is reversed from the bitmap position values below. That is because here we are applying values from the perspective of the object that is being tiled against, whereas below, we are applying values from the perspective of the object that is being tiled.*
 
-<image>
+![tile_chart_4_245x245](https://user-images.githubusercontent.com/6045676/173917548-54fd9dd5-c265-4fcc-8e44-38c1b3da81ad.png)
 
 ## Autotile script
 
