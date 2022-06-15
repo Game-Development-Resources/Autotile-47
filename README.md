@@ -8,19 +8,19 @@ This repository provides code, graphics, and explination for implementing autoti
 
 In video games, the word "tile" generally refers to square-ish graphics that can be placed next to one another to create the visuals of a level. Tiles can either be visually independent from one another, or they can visually connect to neighboring tiles.
 
-These tiles are visually independent:
+Visually independent tiles:
 
 ![image_1_640x360](https://user-images.githubusercontent.com/6045676/173730990-1ed1ee23-b1ea-42f1-897e-664b47dfec92.png)
 
-These tiles are visually connected:
+Visually connected tiles:
 
 ![image_2_640x360](https://user-images.githubusercontent.com/6045676/173730998-36ebc0bd-3ef4-423a-a7f4-bf8cb251d103.png)
 
-The word "tiling" means selecting tiles in such a way that neighboring tiles visually connect to one another (as in the graphic above).
+**Tiling** means selecting tiles in such a way that neighboring tiles visually connect to one another (as in the graphic above).
 
-Autotiling is the use of code to select tiles (rather than having to select them by hand). There are many ways to achieve this effect, but the most computationally efficient autotiling method (that I know of) is referred to as bitmasking or bitwise-autotiling (while we'll explain later).
+**Autotiling** is the use of code to select tiles (rather than having to select them by hand). There are many ways to achieve this effect, but the most computationally efficient autotiling method (that I know of) is referred to as bitmasking or bitwise-autotiling (while we'll explain later).
 
-*Note: This autotile example is for tiling to both orthagonal and diagonal neighbors. In addition, it allows for tiling against more than one type of object, as in the example graphic below:*
+*Note: This autotile example is for tiling to both orthagonal and diagonal neighbors. In addition, it allows for tiling against more than one type of object, as in the example graphic below with some plain grass tiles and some grass tiles with red graphics:*
 
 ![image_3_640x360](https://user-images.githubusercontent.com/6045676/173731006-a9b64fb5-4b56-43ab-9542-0d8094289ee4.png)
 
