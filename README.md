@@ -125,14 +125,12 @@ if (down and right) { bit_count += down_right; }
 if (down and left ) { bit_count += down_left;  }
 ```
 
-Note that we only want to add the diagonals if both the adjacent orthagonal tiles exist. There aren't any case where we would want to connect diagonal tiles when there aren't both adjacent orthagonal tiles. When there are zero orthagonal tiles, we just want to display diagonally tiles as completely disconnected. When there is one orthagonal tile, we 
+Note that we only want to add the diagonal values if both the adjacent orthagonal tiles exist. When there are zero or one orthagonal tiles, we want to display diagonal tiles as disconnected from one another. This is demonstrated in th example image below (assuming we're autotiling the center tile):
+* The upper-right tile doesn't have any supporting orthagonal blocks, so the center tile should be autotiled in a way that ignores the upper-right tile.
+* The upper-left and bottom-right tiles are only supported by one orthagonal block, so we also want to autotile the center tile while ignoring those diagonal tiles.
+* The bottom-left block is supported by two orthagonal blocks, so we want to autotile the center tile to it to create the appearance that all four tiles are connected..
 
 ![image_orthagonal_diagonal_192x192](https://user-images.githubusercontent.com/6045676/173733185-d1431319-cf14-484f-bc4e-88890ff4cd13.png)
-
-In the example image above:
-* The upper-right tile doesn't has no supporting orthagonal blocks, so we want to autotile the center tile ignoring the upper-right tile.
-* The upper-left and bottom-right tiles are only supported by one orthagonal block, so we also want to autotile the center tile while ignoring them.
-* The bottom-left block is supported by two orthagonal blocks, so we want to autotile the center tile to it.
 
 Once we have calculated the bitmap value for the tile, we need to convert it into the appropriate subimage. To do this, we'll use a hash table that will need to be defined ahead of time. The hash table is detailed below.
 
