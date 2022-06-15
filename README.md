@@ -184,6 +184,6 @@ Templates in action:
 
 # Limitations and further thoughts
 
-* The included GameMaker 1.4 example uses objects. You could reworked things to use tiles instead of objects, but it using GameMaker tiles for this requires a bit more code for finding neighbors and for mapping to subimages. If this is something you would really like to see a tutorial in, let me know and I will put one together, since I already have it implemented in my game, [The True Slime King](https://www.thetrueslimeking.com).
+* The GameMaker 1.4 example project uses GameMaker `objects` instead of GameMaker `tiles`. You could reworked things to use tiles instead of objects, but it requires a bit more code for finding neighbors and for mapping to subimages, so I've opted to go with objects for simplicity. If a tile example (or any other example) is something you would really like to see a tutorial for, let me know and I will see if I  have time to put one together.
 * For additional autotiling examples and explanations, search the internet for "tile bitmasking", "autotile bitmasking", or "bitwise autotiling".
-* If you want to make a level editor with real-time autotiling as the user places tiles, you can just autotile the tiles adjacent to where a tile gets created or destroyed (as opposed to autotiling the entire level).
+* If you want to make a level editor with real-time autotiling as the user places tiles, you can save on computation by just autotile the tiles adjacent to where a tile gets created or destroyed (as opposed to autotiling all instances in the level every time something is placed or destroyed).
