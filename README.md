@@ -6,7 +6,7 @@ This repository provides code, graphics, and explanation for implementing autoti
 
 # What is autotiling?
 
-In video games, the word "tile" generally refers to square-ish graphics that can be placed next to one another to create the visuals of a level. Tiles can either be visually independent from one another, or they can visually connect to neighboring tiles.
+In video games, "tiles" are generally square-ish graphics that can be placed next to one another to create many visuals within a level. Tiles can either be visually independent from one another, or they can visually connect to neighboring tiles.
 
 Visually independent tiles:
 
@@ -18,9 +18,9 @@ Visually connected tiles:
 
 **Tiling** means selecting tiles in such a way that neighboring tiles visually connect to one another (as in the graphic above).
 
-**Autotiling** is the use of code to select tiles (rather than having to select them manually). There are many ways to achieve this effect, but the most computationally efficient autotiling method (that I know of) is referred to as bitmasking or bitwise-autotiling (which we'll get to later).
+**Autotiling** is the use of code to select tiles (rather than having to select each tile manually). There are many ways to achieve this effect, but the most computationally efficient autotiling method (that I know of) is referred to as bitmasking or bitwise-autotiling (which we'll get to later).
 
-*Note: This autotile example is for tiling against both orthogonal and diagonal neighbors. In addition, this example allows for tiling against more than one type of object, as in the example graphic below with some plain grass tiles and some grass tiles with red bits:*
+*Note: This autotile example is for tiling against both orthogonal and diagonal neighbors. In addition, this example allows for tiling against more than one type of object, as in the example graphic below that has some plain grass tiles and some grass tiles with red bits:*
 
 ![image_3_640x360](https://user-images.githubusercontent.com/6045676/173731006-a9b64fb5-4b56-43ab-9542-0d8094289ee4.png)
 
@@ -29,11 +29,11 @@ Visually connected tiles:
 # Why use autotiling?
 
 Autotiling is extremely useful in the following situations:
-* **Dynamic in-game systems:** Having autotiling code gives you real-time autotiling capabilities. This allows you change the appearance of tiles as the player interact with the world, such as when a block is created or destroyed.
-* **Extended autotiling functionality:** While many 2D game engines these days have some form of autotiling built in, you likely won't be able to extend that autotiling functionality. Thus, building your own script lets you customize and optimize the tiling functionality to best suit your project. That said, many developers likely won't need custom autotiling functionality.
-* **Quick level design:** If the game engine you are using doesn't have autotiling, you can create an autotile script to save yourself from having to manually select tiles for each individual instance. This not only saves a huge amount of time, but it lets you quickly iterate with level design (because you won't have to rework the tiles every time you make changes to a level).
+* **Dynamic in-game systems:** Implementing autotiling code gives you real-time autotiling capabilities. This allows your game to change the appearance of tiles as the player interacts with the world, such as when a block is created or destroyed.
+* **Extended autotiling functionality:** While many 2D game engines these days have some form of autotiling built in, you likely won't be able to extend that autotiling functionality. Thus, building your own script lets you customize and optimize the tiling functionality to best suit your project. For example, if you want to build a level editor into your game, you'll likely want to implement autotiling.
+* **Quick level design:** If the game engine you are using doesn't have autotiling built in, you can create an autotile script to save yourself from having to manually select tiles for each individual instance. This not only saves a huge amount of time, but it lets you quickly iterate with level design (because you won't have to manually rework the tiles every time you make changes to a level).
 
-For reference, here is a look the level editor in my game, [The True Slime King](https://www.thetrueslimeking.com), with an extended version of this autotile:
+For reference, the video clip below shows level editor in my game, [The True Slime King](https://www.thetrueslimeking.com). It uses autotiling scripts to update blocks as they are placed and destroyed. You can also see how there are two different block types that look different but tile with each other.
 
 https://user-images.githubusercontent.com/6045676/173731022-4979aca7-c93d-4c5a-bf70-33ba75aa71cd.mp4
 
@@ -41,18 +41,20 @@ https://user-images.githubusercontent.com/6045676/173731022-4979aca7-c93d-4c5a-b
 
 # Autotiling function explained
 
-There are three parts to the autotiling function that we will cover here:
-1. **The autotile function** looks at each tile and outputs an integer that varies depending on how many neighbors the tile has.
-1. **The hash table** maps from each unique integer values to the appropriate tile graphic number (out of 47 different tile graphics).
-1. **The autotile graphic** is broken up into 47 subimages that represent all the possible tile graphics. In GameMaker, these can be loaded in one image and turned into a tile sheet, or they can be loaded in as a sprite and split into individual subimages.
+There are three parts to the autotiling function:
+1. **The autotile script** looks at each tile and outputs an integer. The integer varies depending on how many neighbors the tile has and where those neighbors are located.
+1. **The hash table** maps from each unique integer value to the appropriate tile graphic (out of 47 different tile graphics).
+1. **The autotile graphic** is broken up into 47 subimages that represent all the possible tile graphics. In GameMaker, these can be loaded in one image and turned into a tile sheet, or they can be loaded in as a sprite and split into individual subimages. In this example, the tile graphics are all loaded in as subimages of one sprite asset in GameMaker, which automatically assigns the subimages number values starting at 0.
 
-The run time of this function is proportional to the number of objects being autotiled multiplied by the number of objects that are being tiled against.
+**Performance:** The run time of this whole operation is proportional to the number of objects being autotiled multiplied by the number of objects that are being tiled against. For example, if `object_1` is being autotiled against both themselves (`object_1`) and a second object type (`object_2`), the code must loop through all instances of `object_1`, and then within that loop, it must loop through all the instances of `object_1` and `object_2` to determine if they are neighboring.
 
-For example, if there are 20 instances of `object 1` being autotiled, and they are being tiled against themselves (`object 1`) and a second object type (`object 2`), the code must check each instance of `object 1` and `object 2` in the room to see if they are neighbors with the object being autotiled.
+*Note: This example does not assume objects are constrained to a grid. However, if you want to improve performance (and you can guarantee that your objects will be on the grid and will only each take up one grid space each), you can improve performance by doing the following:*
+1. *Create a `ds_grid` or 2D array that stores the bitmap value for each grid square in the level.*
+1. *Instead of using a nested `for loop` (as mentioned above), just iterate twice over each object you want to tile. In the first `loop`, add the relevant bitmap values to the squares around it. The second `loop` will be to check the object's associated grid square and apply that bitmap value as the object's subimage.*
 
-*This example does not assume objects are constrained to a grid. However, if you want to improve performance, and you can guarantee that your objects will be on the grid (and will only each take up one grid space each), you can improve performance by doing the following:*
-1. *Create a `ds_grid` or 2D array that stores the bitmap value for each grid square.*
-1. *Instead of using two for loops (one nested inside the other) to iterate over each object and then iterate over each object against to find neighbors, just iterate once over each object and add the relevant bitmap values to the squares around it. Then iterate over each object a second time and apply the corresponding bitmap value for their square to the object's graphic.*
+*If you are applying this technique along with the examples provided below, you'll need to use the pattern below for applying bitmap values. You'll notice it is reversed from the bitmap position values below. That is because here we are applying values from the perspective of the object that is being tiled against, whereas below, we are applying values from the perspective of the object that is being tiled.*
+
+<image>
 
 ## Autotile script
 
