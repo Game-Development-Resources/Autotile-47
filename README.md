@@ -16,13 +16,11 @@ These tiles are visually connected:
 
 ![image_2_640x360](https://user-images.githubusercontent.com/6045676/173730998-36ebc0bd-3ef4-423a-a7f4-bf8cb251d103.png)
 
-In game development, the word "tiling" means selecting tiles in such a way that neighboring tiles visually connect to one another.
+The word "tiling" means selecting tiles in such a way that neighboring tiles visually connect to one another (as in the graphic above).
 
-Autotiling is the use of code to select the tiles (rather than having to select them by hand). There are many ways to achieve this effect, but the most computationally efficient autotiling method (that I know of) is referred to as bitmasking or bitwise-autotiling.
+Autotiling is the use of code to select tiles (rather than having to select them by hand). There are many ways to achieve this effect, but the most computationally efficient autotiling method (that I know of) is referred to as bitmasking or bitwise-autotiling (while we'll explain later).
 
-This autotile script is for tiling orthagonally and diagonally. Tiling just orthagonally is simpler, but is not covered in this example.
-
-This autotile script allows for tiling against more than one type of object.
+*Note: This autotile example is for tiling to both orthagonal and diagonal neighbors. In addition, it allows for tiling against more than one type of object, as in the example graphic below:*
 
 ![image_3_640x360](https://user-images.githubusercontent.com/6045676/173731006-a9b64fb5-4b56-43ab-9542-0d8094289ee4.png)
 
@@ -32,10 +30,10 @@ This autotile script allows for tiling against more than one type of object.
 
 Autotiling is extremely useful in the following situations:
 * **Dynamic in-game systems:** Having autotiling in your game's code gives you real-time autotiling capabilities. This allows you change the appearance of things as the player interact with the world, such as when a block is created or destroyed.
+* **Extended autotiling functionality:** While many 2D game engines these have some form of autotiling built in, you likely won't be able to extend that autotiling functionality. Thus, building your own script lets you customize and optimize the tiling functionality to best suit your project. That said, many developers likely won't need custom autotiling functionality.
 * **Quick level design:** If the game engine you are using doesn't have autotiling, you can create an autotile script to save yourself from having to manually select tiles for each individual instance. This not only saves a huge amount of time, but it lets you quickly itterate with level design, because you won't have to rework the tiles every time you make changes to a level.
-* **Extended autotiling functionality:** While many 2D game engines these have some form of autotiling built in, you likely won't be able to extend that autotiling functionality. Thus, building your own script lets you customize and optimize the tiling functionality to best suit your project. That said, most developers likely won't need custom autotiling functionality.
 
-For reference, here is a look at the product of an extended version of this autotile script as implemented in my game, [The True Slime King](https://www.thetrueslimeking.com):
+For reference, here is a look the level editor in my game, [The True Slime King](https://www.thetrueslimeking.com), with an extended version of this autotile:
 
 https://user-images.githubusercontent.com/6045676/173731022-4979aca7-c93d-4c5a-bf70-33ba75aa71cd.mp4
 
@@ -43,16 +41,18 @@ https://user-images.githubusercontent.com/6045676/173731022-4979aca7-c93d-4c5a-b
 
 # Autotiling function explained
 
-There are thre parts to the autotilining function that we will cover here:
+There are three parts to the autotilining function that we will cover here:
 1. **The autotile function** looks at each tile and outputs an integer that varies depending on wherebased on how many neighbors the tile has.
 1. **The hash table** maps from each unique integer values to the appropriate tile graphic number (out of 47 different tile graphics).
 1. **The autotile graphic** is broken up into 47 subimages that represent all the possible tile graphics. In GameMaker, these can be loaded in one image and turned into a tile sheet, or they can be loaded in as a sprite and split into individual subimages.
 
 The run time of this function is porportional to the number of objects being autotiled multiplied by the number of objects that are being tiled against.
 
-For example, if there are 20 objects (object 1) being autotiled, and they are being tiled against themselves (object 1) and a second object type (object 2), the code must check each instance of object 1 and object 2 in the room to see if they are neighbors with the object being autotiled. If you want to improve performance in this area, and you can guarantee that your objects will be on the grid and will only each take up one grid space, you can improve this system by doing the following:
-1. Create a `ds_grid` that stores that bitwise value for each grid square.
-1. Instead of iterrating over each object and then itterating over each object to tile against, just iterrate once over each object and add the relevant bitwise values to the squares around it. Then itterate over each object a second time and apply the corresponding bitwise value for their square to the object.
+For example, if there are 20 instances of `object 1` being autotiled, and they are being tiled against themselves (`object 1`) and a second object type (`object 2`), the code must check each instance of `object 1` and `object 2` in the room to see if they are neighbors with the object being autotiled.
+
+*This example does not assume objects are contrained to a grid. Howeve, if you want to improve performance, and you can guarantee that your objects will be on the grid (and will only each take up one grid space each), you can improve performance by doing the following:*
+1. *Create a `ds_grid` or 2D array that stores the bitmap value for each grid square.*
+1. *Instead of using two for loops (one nested inside the other) to iterrate over each object and then itterate over each object againt to find neighbors, just iterrate once over each object and add the relevant bitmap values to the squares around it. Then itterate over each object a second time and apply the corresponding bitmp value for their square to the object's graphic.*
 
 ## Autotile script
 
@@ -60,7 +60,7 @@ The autotile script finds the neighbors for each object and determines what subi
 
 [scr_autotile_47_bitwise(x, y, w, height, object_array)](link-to-full-script)
 
-The first thing we do is set up a bunch of variables to hold the bitwise information. If an is found in the relative position (up, down, left, ...), the associated bit value will get set in the code.
+The first thing we do is set up a bunch of variables to hold the bitmap information. If an is found in the relative position (up, down, left, ...), the associated bit value will get set in the code.
 
 ```
 up         = 0;
@@ -73,7 +73,7 @@ up_left    = 0;
 down_left  = 0;
 ```
 
-Next, we loop through all the objects we want to tile and find any neighbors. As we check, we'll assign a unique value to each adjacent tile such that when we add up all the values, we always have a unique identifying number that we can map to a specific graphic. To do this, we use powers of 2 (although for other applications, such as blending between multiple tile types, you can use powers of 3 or more, but that's not always advised, since you would need a lot of graphics). This is where the method gets its "Bitwise" or "Bitmap" name.
+Next, we loop through all the objects we want to tile and find any neighbors. As we check, we'll assign a unique value to each adjacent tile such that when we add up all the values, we always have a unique identifying number that we can map to a specific graphic. To do this, we use powers of 2 (although for other applications, such as blending between multiple tile types, you can use powers of 3 or more, but that's not always advised, since you would need a lot of graphics). This is where the method gets its "Bitmap" or  "Bitwise" name.
 
 In this graphic, the center tile represents the tile we want to autotile and the adjacent squares display the values we assign to each of the 8 positions around the tile.
 
@@ -92,9 +92,9 @@ Adding all those values together gives us the value 75, which we would map to th
 
 ![tile_chart_3_245x245](https://user-images.githubusercontent.com/6045676/173731150-d732395d-da2a-4155-ae33-da4d9339c2ea.png)
 
-*Note: The order in which you number your tile positions isn't important, but if you change it from the order here, you'll also have to change your hash table (see below) to appropriately map between the bitwise values and the subimages.*
+*Note: The order in which you number your tile positions isn't important, but if you change it from the order here, you'll also have to change your hash table (see below) to appropriately map between the bitmap values and the subimages.*
 
-Here is the GameMaker code that looks for objects and assigns the bitwise values:
+Here is the GameMaker code that looks for objects and assigns the bitmap values:
 
 ```
 for (var i=0; i<array_length_1d(object_array); i++) {
@@ -134,7 +134,7 @@ In the example image above:
 * The upper-left and bottom-right tiles are only supported by one orthagonal block, so we also want to autotile the center tile while ignoring them.
 * The bottom-left block is supported by two orthagonal blocks, so we want to autotile the center tile to it.
 
-Once we have calculated the bitwise value for the tile, we need to convert it into the appropriate subimage. To do this, we'll use a hash table that will need to be defined ahead of time. The hash table is detailed below.
+Once we have calculated the bitmap value for the tile, we need to convert it into the appropriate subimage. To do this, we'll use a hash table that will need to be defined ahead of time. The hash table is detailed below.
 
 ```
 subimage = global.map_bitwise_tile_47[? bit_count];
@@ -143,7 +143,7 @@ return(subimage);
 
 ## Autotile hash table
 
-In this example, GameMaker global variable global.map_bitwise_tile_47 is a hash table that maps all possible bitwise values (that can be produced by our script above) to their corresponding graphics subimage numbers.
+In this example, GameMaker global variable global.map_bitwise_tile_47 is a hash table that maps all possible bitmap values (that can be produced by our script above) to their corresponding graphics subimage numbers.
 
 There are 47 possible subimages (thus the reason for this example being named "Autotile 47").
 
@@ -160,7 +160,7 @@ global.map_bitwise_tile_47[? 66]  = 45;
 global.map_bitwise_tile_47[? 24]  = 46;
 ```
 
-This map is generated once at the start of the game. Once generated, passing in a key (our bitwise number) to access a value (our subimage number) from the hash tables effectively takes O(1) time. The map is saved in a global variable, because GameMaker 1.4 global variables are 10% faster to access than local variables (at least that's the case in my testing).
+This map is generated once at the start of the game. Once generated, passing in a key (our bitmap number) to access a value (our subimage number) from the hash tables effectively takes O(1) time. The map is saved in a global variable, because GameMaker 1.4 global variables are 10% faster to access than local variables (at least that's the case in my testing).
 
 ## Autotile graphic
 
