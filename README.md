@@ -58,9 +58,9 @@ There are three parts to the autotiling function:
 
 ## Autotile script
 
-The autotile script finds the neighbors for each object and determines what subimages should be shown.
+[scr_autotile_47_bitwise(x, y, w, height, object_array)](/example_gamemaker_project/Autotile47Bitwise.gmx/scripts/scr_autotile_47_bitwise.gml)
 
-[scr_autotile_47_bitwise(x, y, w, height, object_array)](link-to-full-script)
+The autotile script finds each object's neighbors to determine what the object's subimage should be.
 
 The first thing we do is set up a bunch of variables to hold the bitmap information. If an is found in the relative position (up, down, left, ...), the associated bit value will get set in the code.
 
@@ -143,11 +143,11 @@ return(subimage);
 
 ## Autotile hash table
 
+[scr_init_bitwise_map()](/example_gamemaker_project/Autotile47Bitwise.gmx/scripts/scr_init_bitwise_map.gml)
+
 In this example, GameMaker global variable global.map_bitwise_tile_47 is a hash table that maps all possible bitmap values (that can be produced by our script above) to their corresponding graphics subimage numbers.
 
 There are 47 possible subimages (thus the reason for this example being named "Autotile 47").
-
-[scr_init_bitwise_map()](link-to-full-script)
 ```
 global.map_bitwise_tile_47[? 2]   = 0;
 global.map_bitwise_tile_47[? 16]  = 1;
