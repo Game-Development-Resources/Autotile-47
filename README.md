@@ -1,6 +1,6 @@
 # Autotile-47
 
-This repository provides code, graphics, and explination for implementing autotiling in GameMaker 1.4. These methods can be adapted for other development environments.
+This repository provides code, graphics, and explanation for implementing autotiling in GameMaker 1.4. These methods can be adapted for other development environments.
 
 
 
@@ -18,9 +18,9 @@ Visually connected tiles:
 
 **Tiling** means selecting tiles in such a way that neighboring tiles visually connect to one another (as in the graphic above).
 
-**Autotiling** is the use of code to select tiles (rather than having to select them by hand). There are many ways to achieve this effect, but the most computationally efficient autotiling method (that I know of) is referred to as bitmasking or bitwise-autotiling (while we'll explain later).
+**Autotiling** is the use of code to select tiles (rather than having to select them manually). There are many ways to achieve this effect, but the most computationally efficient autotiling method (that I know of) is referred to as bitmasking or bitwise-autotiling (which we'll get to later).
 
-*Note: This autotile example is for tiling to both orthagonal and diagonal neighbors. In addition, it allows for tiling against more than one type of object, as in the example graphic below with some plain grass tiles and some grass tiles with red graphics:*
+*Note: This autotile example is for tiling against both orthogonal and diagonal neighbors. In addition, this example allows for tiling against more than one type of object, as in the example graphic below with some plain grass tiles and some grass tiles with red bits:*
 
 ![image_3_640x360](https://user-images.githubusercontent.com/6045676/173731006-a9b64fb5-4b56-43ab-9542-0d8094289ee4.png)
 
@@ -29,9 +29,9 @@ Visually connected tiles:
 # Why use autotiling?
 
 Autotiling is extremely useful in the following situations:
-* **Dynamic in-game systems:** Having autotiling in your game's code gives you real-time autotiling capabilities. This allows you change the appearance of things as the player interact with the world, such as when a block is created or destroyed.
-* **Extended autotiling functionality:** While many 2D game engines these have some form of autotiling built in, you likely won't be able to extend that autotiling functionality. Thus, building your own script lets you customize and optimize the tiling functionality to best suit your project. That said, many developers likely won't need custom autotiling functionality.
-* **Quick level design:** If the game engine you are using doesn't have autotiling, you can create an autotile script to save yourself from having to manually select tiles for each individual instance. This not only saves a huge amount of time, but it lets you quickly itterate with level design, because you won't have to rework the tiles every time you make changes to a level.
+* **Dynamic in-game systems:** Having autotiling code gives you real-time autotiling capabilities. This allows you change the appearance of tiles as the player interact with the world, such as when a block is created or destroyed.
+* **Extended autotiling functionality:** While many 2D game engines these days have some form of autotiling built in, you likely won't be able to extend that autotiling functionality. Thus, building your own script lets you customize and optimize the tiling functionality to best suit your project. That said, many developers likely won't need custom autotiling functionality.
+* **Quick level design:** If the game engine you are using doesn't have autotiling, you can create an autotile script to save yourself from having to manually select tiles for each individual instance. This not only saves a huge amount of time, but it lets you quickly iterate with level design (because you won't have to rework the tiles every time you make changes to a level).
 
 For reference, here is a look the level editor in my game, [The True Slime King](https://www.thetrueslimeking.com), with an extended version of this autotile:
 
@@ -41,18 +41,18 @@ https://user-images.githubusercontent.com/6045676/173731022-4979aca7-c93d-4c5a-b
 
 # Autotiling function explained
 
-There are three parts to the autotilining function that we will cover here:
-1. **The autotile function** looks at each tile and outputs an integer that varies depending on wherebased on how many neighbors the tile has.
+There are three parts to the autotiling function that we will cover here:
+1. **The autotile function** looks at each tile and outputs an integer that varies depending on how many neighbors the tile has.
 1. **The hash table** maps from each unique integer values to the appropriate tile graphic number (out of 47 different tile graphics).
 1. **The autotile graphic** is broken up into 47 subimages that represent all the possible tile graphics. In GameMaker, these can be loaded in one image and turned into a tile sheet, or they can be loaded in as a sprite and split into individual subimages.
 
-The run time of this function is porportional to the number of objects being autotiled multiplied by the number of objects that are being tiled against.
+The run time of this function is proportional to the number of objects being autotiled multiplied by the number of objects that are being tiled against.
 
 For example, if there are 20 instances of `object 1` being autotiled, and they are being tiled against themselves (`object 1`) and a second object type (`object 2`), the code must check each instance of `object 1` and `object 2` in the room to see if they are neighbors with the object being autotiled.
 
-*This example does not assume objects are contrained to a grid. Howeve, if you want to improve performance, and you can guarantee that your objects will be on the grid (and will only each take up one grid space each), you can improve performance by doing the following:*
+*This example does not assume objects are constrained to a grid. However, if you want to improve performance, and you can guarantee that your objects will be on the grid (and will only each take up one grid space each), you can improve performance by doing the following:*
 1. *Create a `ds_grid` or 2D array that stores the bitmap value for each grid square.*
-1. *Instead of using two for loops (one nested inside the other) to iterrate over each object and then itterate over each object againt to find neighbors, just iterrate once over each object and add the relevant bitmap values to the squares around it. Then itterate over each object a second time and apply the corresponding bitmp value for their square to the object's graphic.*
+1. *Instead of using two for loops (one nested inside the other) to iterate over each object and then iterate over each object against to find neighbors, just iterate once over each object and add the relevant bitmap values to the squares around it. Then iterate over each object a second time and apply the corresponding bitmap value for their square to the object's graphic.*
 
 ## Autotile script
 
@@ -125,10 +125,10 @@ if (down and right) { bit_count += down_right; }
 if (down and left ) { bit_count += down_left;  }
 ```
 
-Note that we only want to add the diagonal values if both the adjacent orthagonal tiles exist. When there are zero or one orthagonal tiles, we want to display diagonal tiles as disconnected from one another. This is demonstrated in th example image below (assuming we're autotiling the center tile):
-* The upper-right tile doesn't have any supporting orthagonal blocks, so the center tile should be autotiled in a way that ignores the upper-right tile.
-* The upper-left and bottom-right tiles are only supported by one orthagonal block, so we also want to autotile the center tile while ignoring those diagonal tiles.
-* The bottom-left block is supported by two orthagonal blocks, so we want to autotile the center tile to it to create the appearance that all four tiles are connected..
+Note that we only want to add the diagonal values if both the adjacent orthogonal tiles exist. When there are zero or one orthogonal tiles, we want to display diagonal tiles as disconnected from one another. This is demonstrated in the example image below (assuming we're autotiling the center tile):
+* The upper-right tile doesn't have any supporting orthogonal blocks, so the center tile should be autotiled in a way that ignores the upper-right tile.
+* The upper-left and bottom-right tiles are only supported by one orthogonal block, so we also want to autotile the center tile while ignoring those diagonal tiles.
+* The bottom-left block is supported by two orthogonal blocks, so we want to autotile the center tile to it to create the appearance that all four tiles are connected..
 
 ![image_orthagonal_diagonal_192x192](https://user-images.githubusercontent.com/6045676/173733185-d1431319-cf14-484f-bc4e-88890ff4cd13.png)
 
@@ -183,6 +183,6 @@ Templates in action:
 
 # Limitations and further thoughts
 
-* The included GameMaker 1.4 example uses objects. You could reworkd things to use tiles instead of objects, but it using GameMaker tiles for this requires a bit more code for finding neighbors and for mapping to subimages. If this is something you would really like to see a tutorial in, let me know and I will put one together, since I already have it implemented in my game, [The True Slime King](https://www.thetrueslimeking.com).
-* For additional autotiling examples and explinations, search the internet for "tile bitmasking", "autotile bitmasking", or "bitwise autotiling".
+* The included GameMaker 1.4 example uses objects. You could reworked things to use tiles instead of objects, but it using GameMaker tiles for this requires a bit more code for finding neighbors and for mapping to subimages. If this is something you would really like to see a tutorial in, let me know and I will put one together, since I already have it implemented in my game, [The True Slime King](https://www.thetrueslimeking.com).
+* For additional autotiling examples and explanations, search the internet for "tile bitmasking", "autotile bitmasking", or "bitwise autotiling".
 * If you want to make a level editor with real-time autotiling as the user places tiles, you can just autotile the tiles adjacent to where a tile gets created or destroyed (as opposed to autotiling the entire level).
