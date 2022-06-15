@@ -1,4 +1,4 @@
-+# Autotile-47
+# Autotile-47
 
 This repository provides code, graphics, and explination for implementing autotiling in GameMaker 1.4. These methods can be adapted for other development environments.
 
@@ -127,7 +127,7 @@ if (down and left ) { bit_count += down_left;  }
 
 Note that we only want to add the diagonals if both the adjacent orthagonal tiles exist. There aren't any case where we would want to connect diagonal tiles when there aren't both adjacent orthagonal tiles. When there are zero orthagonal tiles, we just want to display diagonally tiles as completely disconnected. When there is one orthagonal tile, we 
 
-<image_orthagonal_diagonal_192x192.png>
+![image_orthagonal_diagonal_192x192](https://user-images.githubusercontent.com/6045676/173733185-d1431319-cf14-484f-bc4e-88890ff4cd13.png)
 
 In the example image above:
 * The upper-right tile doesn't has no supporting orthagonal blocks, so we want to autotile the center tile ignoring the upper-right tile.
