@@ -58,11 +58,11 @@ There are three parts to the autotiling function:
 
 ## Autotile script
 
-[scr_autotile_47_bitwise(x, y, w, height, object_array)](/example_gamemaker_project/Autotile47Bitwise.gmx/scripts/scr_autotile_47_bitwise.gml)
+[scr_autotile_47_bitwise(x, y, width, height, object_array)](/example_gamemaker_project/Autotile47Bitwise.gmx/scripts/scr_autotile_47_bitwise.gml)
 
 The autotile script finds each object's neighbors to determine what the object's subimage should be.
 
-The first thing we do is set up a bunch of variables to hold the bitmap information. If an is found in the relative position (up, down, left, ...), the associated bit value will get set in the code.
+The first step in the script is to create variables to hold the bitmap information for each neighboring grid square. If a neighbor is found in the relative position (up, down, left, ...), the variable will be set as the bit value associated for that position (more on this below).
 
 ```
 up         = 0;
@@ -75,26 +75,26 @@ up_left    = 0;
 down_left  = 0;
 ```
 
-Next, we loop through all the objects we want to tile and find any neighbors. As we check, we'll assign a unique value to each adjacent tile such that when we add up all the values, we always have a unique identifying number that we can map to a specific graphic. To do this, we use powers of 2 (although for other applications, such as blending between multiple tile types, you can use powers of 3 or more, but that's not always advised, since you would need a lot of graphics). This is where the method gets its "Bitmap" or  "Bitwise" name.
+Next, we loop through all the objects we want to tile in order to find their neighbors. As we check, we'll assign a unique value to each adjacent tile such that when we add up all the values, we always have a unique identifying number that we can map to a specific graphic. To do this, we use powers of 2 (although for other applications, such as blending between multiple tile types, you can use powers of 3 or more, but that's not always advised, since you would need a lot of graphics). This is where the method gets its "Bitmap" or "Bitwise" name.
 
-In this graphic, the center tile represents the tile we want to autotile and the adjacent squares display the values we assign to each of the 8 positions around the tile.
+In the graphic below, the center tile represents the tile we want to autotile and the adjacent squares display the values we assign to each of the 8 positions around the tile.
 
 ![tile_chart_1_245x245](https://user-images.githubusercontent.com/6045676/173731130-ee5db358-64b4-401c-b084-76db39d003eb.png)
 
-In this example, there is a tile above and a tile to the right, so we add up 2 + 16 to get a value of 18 that we can then map to give our center tile its appropriate graphic.
+In the graphic below, there is a tile above and a tile to the right, so we would add up 2 + 16 to get a value of 18. This value of 18 would then be mapped to a subimage number so our center tile can display the appropriate graphic.
 
 ![tile_chart_2_245x245](https://user-images.githubusercontent.com/6045676/173731163-22f5be3a-e28c-4832-8b23-c99a0690294d.png)
 
-In this example, there is a tile in the following positions:
+In the graphic below, there are tiles in the following positions:
 * up-left (+1)
 * up (+2)
 * left (+8)
 * down (+64)
-Adding all those values together gives us the value 75, which we would map to the appropriate graphic.
+Adding all those values together gives us the value 75, which we would map to the appropriate subimage number.
 
 ![tile_chart_3_245x245](https://user-images.githubusercontent.com/6045676/173731150-d732395d-da2a-4155-ae33-da4d9339c2ea.png)
 
-*Note: The order in which you number your tile positions isn't important, but if you change it from the order here, you'll also have to change your hash table (see below) to appropriately map between the bitmap values and the subimages.*
+*Note: The order in which you number your tile positions isn't important, but if you change it from the order here, you'll also have to change your hash table (see below) to appropriately map between the bitmap values and the subimage numbers.*
 
 Here is the GameMaker code that looks for objects and assigns the bitmap values:
 
@@ -114,9 +114,9 @@ for (var i=0; i<array_length_1d(object_array); i++) {
 }
 ```
 
-*Note: If an object has already been found for a given direction, GameMaker will skip running the position_meeting() function, which saves on computation.*
+*Note: If an object has already been found for a given direction, GameMaker will skip running the position_meeting() function, which saves on computation time.*
 
-Next, we add up the individual direction bit values.
+Next, we add up all the bit values that the code above collected.
 
 ```
 bit_count = up + right + down + left;
@@ -127,27 +127,26 @@ if (down and right) { bit_count += down_right; }
 if (down and left ) { bit_count += down_left;  }
 ```
 
-Note that we only want to add the diagonal values if both the adjacent orthogonal tiles exist. When there are zero or one orthogonal tiles, we want to display diagonal tiles as disconnected from one another. This is demonstrated in the example image below (assuming we're autotiling the center tile):
+Note that we only want to add the diagonal values if both the adjacent orthogonal tiles exist. When there are zero or one orthogonal tiles (adjacent to the diagonal tile), we want to display diagonal tiles as disconnected from one another. This is demonstrated in the example image below (assuming we're autotiling the center tile):
 * The upper-right tile doesn't have any supporting orthogonal blocks, so the center tile should be autotiled in a way that ignores the upper-right tile.
 * The upper-left and bottom-right tiles are only supported by one orthogonal block, so we also want to autotile the center tile while ignoring those diagonal tiles.
-* The bottom-left block is supported by two orthogonal blocks, so we want to autotile the center tile to it to create the appearance that all four tiles are connected..
+* The bottom-left block is supported by two orthogonal blocks, so we want to autotile the center tile in a way that makes all four tiles appear connected.
 
 ![image_orthagonal_diagonal_192x192](https://user-images.githubusercontent.com/6045676/173733185-d1431319-cf14-484f-bc4e-88890ff4cd13.png)
 
-Once we have calculated the bitmap value for the tile, we need to convert it into the appropriate subimage. To do this, we'll use a hash table that will need to be defined ahead of time. The hash table is detailed below.
+Once we have calculated the bitmap value for the tile, we need to convert it into the appropriate subimage. To do this, we'll use a hash table (that will need to be defined ahead of time).
 
 ```
 subimage = global.map_bitwise_tile_47[? bit_count];
-return(subimage);
 ```
 
 ## Autotile hash table
 
 [scr_init_bitwise_map()](/example_gamemaker_project/Autotile47Bitwise.gmx/scripts/scr_init_bitwise_map.gml)
 
-In this example, GameMaker global variable global.map_bitwise_tile_47 is a hash table that maps all possible bitmap values (that can be produced by our script above) to their corresponding graphics subimage numbers.
+In this example, our GameMaker global variable `global.map_bitwise_tile_47` is a hash table that maps all possible bitmap values (that can be produced by our script above) to their corresponding graphics subimage numbers.
 
-There are 47 possible subimages (thus the reason for this example being named "Autotile 47").
+There are 47 possible subimages (thus the reason for this example being named "Autotile-47").
 ```
 global.map_bitwise_tile_47[? 2]   = 0;
 global.map_bitwise_tile_47[? 16]  = 1;
@@ -160,13 +159,13 @@ global.map_bitwise_tile_47[? 66]  = 45;
 global.map_bitwise_tile_47[? 24]  = 46;
 ```
 
-This map is generated once at the start of the game. Once generated, passing in a key (our bitmap number) to access a value (our subimage number) from the hash tables effectively takes O(1) time. The map is saved in a global variable, because GameMaker 1.4 global variables are 10% faster to access than local variables (at least that's the case in my testing).
+This map is generated once at the start of the game. Once generated, passing in a key (our bitmap number) to access a value (our subimage number) from the hash tables effectively takes O(1) time. The map is saved in a global variable, because in GameMaker 1.4, global variables are 10% faster to access than local variables (at least in my testing).
 
 ## Autotile graphic
 
 ![template_autotile_47_with_text](https://user-images.githubusercontent.com/6045676/173731196-f662239b-ceb1-4cb8-9685-894c442be5b6.png)
 
-The [provided graphics templates]() are 32x32 pixels because that is what I prefer to use for game development (as a tradeoff between level of detail and work speed for pixel art). You are welcome to scale the templates up or down to whatever size you want for your game, and you do not have to stick to pixel art. If you adjust the size of the graphics, you'll just need to adjust the `width` and `height` variables passed into `scr_autotile_47_bitwise()` to match your tile size. So instead of using this: `scr_autotile_47_bitwise(..., ..., 32, 32, ...)`, you might use `scr_autotile_47_bitwise(..., ..., 128, 64, ...)` if your graphics are 128 pixels wide and 64 pixels tall.
+The [provided graphics templates](/graphics_templates/) are 32x32 pixels because that is what I prefer to use for game development (as a tradeoff between level of detail and work speed for pixel art). You are welcome to scale the templates up or down to whatever size you want for your game, and you do not have to stick to pixel art. If you adjust the size of the graphics, you'll just need to adjust the `width` and `height` variables passed into `scr_autotile_47_bitwise()` to match your tile size. So instead of using this: `scr_autotile_47_bitwise(..., ..., 32, 32, ...)`, you might use `scr_autotile_47_bitwise(..., ..., 128, 64, ...)` if your graphics are 128 pixels wide and 64 pixels tall.
 
 I've included template PNG files and [Pyxel Edit](https://www.pyxeledit.com) files. In the Pyxel Edit files, I have broken down each wall tile into 4 Pyxel tiles. The Pyxel tiles get copied around to different parts of different wall tiles. Whenever one of the Pyxel tiles is updated, it updates in all locations where that tile is. This system makes it very efficient to create and alter the 47 wall tiles while making sure all the graphics line up correctly. I chose to split each wall tile into 4 Pyxel tiles because repetition at this level is what I tend to use in my pixel art. You can set up your own sizes if you want, whether that's just doing each tile separately or dividing each tile into even smaller Pyxel tile chunks.
 
